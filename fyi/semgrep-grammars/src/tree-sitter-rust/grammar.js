@@ -58,7 +58,6 @@ module.exports = grammar({
 
   inline: $ => [
     $._path,
-    $._simple_path,
     $._type_identifier,
     $._tokens,
     $._field_identifier,
@@ -74,7 +73,6 @@ module.exports = grammar({
     [$._type, $._pattern],
     [$.unit_type, $.tuple_pattern],
     [$.scoped_identifier, $.scoped_type_identifier],
-    [$.scoped_identifier, $.simple_scoped_identifier],
     [$.parameters, $._pattern],
     [$.parameters, $.tuple_struct_pattern],
     [$.type_parameters, $.for_lifetimes],
@@ -218,7 +216,7 @@ module.exports = grammar({
     _attribute: $ => seq('[', $.meta_item, ']'),
 
     meta_item: $ => seq(
-      $._simple_path,
+      $._path,
       optional(choice(
         seq('=', field('value', $._literal)),
         field('arguments', $.meta_arguments)
@@ -654,7 +652,7 @@ module.exports = grammar({
     ),
 
     _use_clause: $ => choice(
-      $._simple_path,
+      $._path,
       $.use_as_clause,
       $.use_list,
       $.scoped_use_list,
@@ -662,7 +660,7 @@ module.exports = grammar({
     ),
 
     scoped_use_list: $ => seq(
-      field('path', optional($._simple_path)),
+      field('path', optional($._path)),
       '::',
       field('list', $.use_list)
     ),
@@ -677,13 +675,13 @@ module.exports = grammar({
     ),
 
     use_as_clause: $ => seq(
-      field('path', $._simple_path),
+      field('path', $._path),
       'as',
       field('alias', $.identifier)
     ),
 
     use_wildcard: $ => seq(
-      optional(seq($._simple_path, '::')),
+      optional(seq($._path, '::')),
       '*'
     ),
 
@@ -738,7 +736,7 @@ module.exports = grammar({
               $.self,
               $.super,
               $.crate,
-              seq('in', $._simple_path)
+              seq('in', $._path)
             ),
             ')'
           )),
@@ -969,7 +967,7 @@ module.exports = grammar({
 
     macro_invocation: $ => seq(
       field('macro', choice(
-        $.simple_scoped_identifier,
+        $.scoped_identifier,
         $.identifier
       )),
       '!',
@@ -982,12 +980,6 @@ module.exports = grammar({
         $.bracketed_type,
         alias($.generic_type_with_turbofish, $.generic_type)
       ))),
-      '::',
-      field('name', $.identifier)
-    ),
-
-    simple_scoped_identifier: $ => seq(
-      field('path', $._simple_path),
       '::',
       field('name', $.identifier)
     ),
@@ -1526,16 +1518,6 @@ module.exports = grammar({
       prec(1, $.crate),
       $.identifier,
       $.scoped_identifier
-    ),
-
-    _simple_path: $ => choice(
-      $.self,
-      alias(choice(...primitive_types), $.identifier),
-      $.metavariable,
-      $.super,
-      prec(1, $.crate),
-      $.identifier,
-      $.simple_scoped_identifier
     ),
 
     identifier: $ => /(r#)?[a-zA-Zα-ωΑ-Ωµ_][a-zA-Zα-ωΑ-Ωµ\d_]*/,
