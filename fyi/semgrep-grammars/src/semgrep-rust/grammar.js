@@ -21,7 +21,7 @@ module.exports = grammar(standard_grammar, {
       );
     },
 
-    // Alternate "entry point". Allows parsing a standalone list of statements.
+    // Alternate "entry point". Allows parsing a standalone expression.
     semgrep_expression: $ => seq('__SEMGREP_EXPRESSION', $._expression),
 
     // Alternate "entry point". Allows parsing a standalone list of statements.
